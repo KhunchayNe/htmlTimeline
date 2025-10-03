@@ -1,0 +1,2104 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Timeline with Advanced Zoom</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e1e8ed;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            z-index: 100;
+            position: relative;
+        }
+        
+        .header-left h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a202c;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #cbd5e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn:hover {
+            background: #f7fafc;
+            border-color: #a0aec0;
+        }
+        
+        .btn-primary {
+            background: #3182ce;
+            color: white;
+            border-color: #3182ce;
+        }
+        
+        .btn-primary:hover {
+            background: #2c5282;
+        }
+        
+        /* Main Layout */
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e1e8ed;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .filter-section {
+            margin-bottom: 24px;
+        }
+        
+        .policy-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .policy-item:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+        }
+        
+        .policy-item.active {
+            background: #ebf8ff;
+            border-color: #3182ce;
+        }
+        
+        .policy-checkbox {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .policy-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+        
+        .policy-name {
+            flex: 1;
+            font-size: 13px;
+        }
+        
+        /* Timeline Area */
+        .timeline-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+        
+        /* Enhanced Controls */
+        .controls {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e1e8ed;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            background: #fafbfc;
+        }
+        
+        .time-range {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .time-btn {
+            padding: 6px 12px;
+            border: 1px solid #cbd5e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .time-btn.active {
+            background: #3182ce;
+            color: white;
+            border-color: #3182ce;
+        }
+        
+        .time-btn:hover:not(.active) {
+            background: #f7fafc;
+        }
+        
+        /* Zoom Control Panel */
+        .zoom-panel {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        
+        .zoom-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
+        }
+        
+        .zoom-controls {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #cbd5e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .zoom-btn:hover:not(:disabled) {
+            background: #f7fafc;
+            border-color: #3182ce;
+        }
+        
+        .zoom-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .zoom-slider {
+            width: 120px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e2e8f0;
+            border-radius: 2px;
+            outline: none;
+        }
+        
+        .zoom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #3182ce;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        
+        .zoom-slider::-webkit-slider-thumb:hover {
+            background: #2c5282;
+            transform: scale(1.2);
+        }
+        
+        .zoom-level-indicator {
+            min-width: 80px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3182ce;
+            padding: 4px 8px;
+            background: #ebf8ff;
+            border-radius: 4px;
+        }
+        
+        /* Date Range Display */
+        .date-range-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #2d3748;
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+        
+        .date-nav-btn {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #cbd5e0;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .date-nav-btn:hover {
+            background: #f7fafc;
+        }
+        
+        /* Timeline Canvas */
+        .timeline-canvas {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+            padding: 20px;
+        }
+        
+        .timeline-grid {
+            position: relative;
+            min-width: 100%;
+            transition: all 0.3s ease-out;
+        }
+        
+        /* Year Markers - Dynamic based on zoom */
+        .year-markers {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+        
+        .year-marker {
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            position: relative;
+            padding: 4px;
+        }
+        
+        .year-marker.major {
+            font-size: 14px;
+            color: #2d3748;
+        }
+        
+        .year-marker .sub-label {
+            display: block;
+            font-size: 10px;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+        
+        .year-marker::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 0;
+            width: 1px;
+            height: 8px;
+            background: #cbd5e0;
+        }
+        
+        /* Policy Lanes */
+        .policy-lane {
+            position: relative;
+            height: 60px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .lane-label {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            font-weight: 500;
+            color: #2d3748;
+            background: white;
+            padding-right: 12px;
+            z-index: 2;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .lane-bar {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 32px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .lane-bar:hover {
+            transform: translateY(-50%) scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        /* Events - Size varies by zoom */
+        .event {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 3;
+        }
+        
+        .event.size-small {
+            width: 16px;
+            height: 16px;
+            border-width: 2px;
+        }
+        
+        .event.size-medium {
+            width: 24px;
+            height: 24px;
+            border-width: 3px;
+        }
+        
+        .event.size-large {
+            width: 32px;
+            height: 32px;
+            border-width: 3px;
+        }
+        
+        .event:hover {
+            transform: translate(-50%, -50%) scale(1.4);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 4;
+        }
+        
+        .event.dividend { background: #48bb78; }
+        .event.maturity { background: #ed8936; }
+        .event.premium { background: #4299e1; }
+        .event.bonus { background: #9f7aea; }
+        
+        .event-icon {
+            font-size: 11px;
+            color: white;
+        }
+        
+        .event.size-small .event-icon {
+            font-size: 8px;
+        }
+        
+        .event.size-large .event-icon {
+            font-size: 14px;
+        }
+        
+        /* Mini-map for navigation */
+        .minimap {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 250px;
+            height: 80px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 50;
+            transition: all 0.2s;
+        }
+        
+        .minimap:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+        
+        .minimap-label {
+            font-size: 11px;
+            color: #4a5568;
+            margin-bottom: 6px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .minimap-info {
+            font-size: 9px;
+            color: #a0aec0;
+            font-weight: normal;
+        }
+        
+        .minimap-track {
+            height: 40px;
+            background: #f7fafc;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .minimap-policy {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 6px;
+            border-radius: 3px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        
+        .minimap-track:hover .minimap-policy {
+            opacity: 0.8;
+        }
+        
+        .minimap-event {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+        }
+        
+        .minimap-viewport {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            background: rgba(49, 130, 206, 0.2);
+            border: 2px solid #3182ce;
+            border-radius: 4px;
+            cursor: grab;
+            transition: background 0.2s;
+            min-width: 10px;
+        }
+        
+        .minimap-viewport:hover {
+            background: rgba(49, 130, 206, 0.3);
+        }
+        
+        .minimap-viewport:active {
+            cursor: grabbing;
+            background: rgba(49, 130, 206, 0.4);
+        }
+        
+        /* Detail Panel */
+        .detail-panel {
+            width: 320px;
+            border-left: 1px solid #e1e8ed;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fafbfc;
+        }
+        
+        .detail-panel h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1a202c;
+        }
+        
+        .detail-empty {
+            text-align: center;
+            color: #a0aec0;
+            padding: 40px 20px;
+            font-size: 14px;
+        }
+        
+        .event-detail {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .event-detail h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2d3748;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f7fafc;
+            font-size: 13px;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #718096;
+        }
+        
+        .detail-value {
+            font-weight: 500;
+            color: #2d3748;
+        }
+        
+        .amount-large {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 12px 0;
+        }
+        
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 16px;
+            padding: 16px 24px;
+            background: #fafbfc;
+            border-top: 1px solid #e1e8ed;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: #2d3748;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-width: 250px;
+        }
+        
+        .tooltip.show {
+            opacity: 1;
+        }
+        
+        /* Zoom Info Toast */
+        .zoom-toast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: #2d3748;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            z-index: 999;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .zoom-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Loading State */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #3182ce;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Calendar Modal */
+        .calendar-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        
+        .calendar-modal.active {
+            display: flex;
+        }
+        
+        .calendar-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .calendar-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafbfc;
+        }
+        
+        .calendar-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a202c;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .calendar-nav-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #cbd5e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 18px;
+        }
+        
+        .calendar-nav-btn:hover {
+            background: #f7fafc;
+            border-color: #3182ce;
+        }
+        
+        .calendar-current-month {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            min-width: 150px;
+            text-align: center;
+        }
+        
+        .calendar-close {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #cbd5e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 20px;
+            color: #718096;
+        }
+        
+        .calendar-close:hover {
+            background: #fed7d7;
+            border-color: #fc8181;
+            color: #c53030;
+        }
+        
+        .calendar-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .calendar-weekday {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #718096;
+            padding: 8px;
+            text-transform: uppercase;
+        }
+        
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .calendar-day {
+            min-height: 80px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px;
+            background: white;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .calendar-day:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+        }
+        
+        .calendar-day.other-month {
+            background: #fafbfc;
+            opacity: 0.5;
+        }
+        
+        .calendar-day.today {
+            border-color: #3182ce;
+            border-width: 2px;
+            background: #ebf8ff;
+        }
+        
+        .calendar-day-number {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+        
+        .calendar-day.other-month .calendar-day-number {
+            color: #a0aec0;
+        }
+        
+        .calendar-events {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .calendar-event {
+            font-size: 10px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .calendar-event.dividend {
+            background: #48bb78;
+        }
+        
+        .calendar-event.maturity {
+            background: #ed8936;
+        }
+        
+        .calendar-event.premium {
+            background: #4299e1;
+        }
+        
+        .calendar-event.bonus {
+            background: #9f7aea;
+        }
+        
+        .calendar-legend {
+            padding: 16px 20px;
+            border-top: 1px solid #e2e8f0;
+            background: #fafbfc;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .detail-panel {
+                width: 280px;
+            }
+            
+            .zoom-slider {
+                width: 80px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-height: 200px;
+                border-right: none;
+                border-bottom: 1px solid #e1e8ed;
+            }
+            
+            .detail-panel {
+                width: 100%;
+                max-height: 250px;
+                border-left: none;
+                border-top: 1px solid #e1e8ed;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+            }
+            
+            .minimap {
+                display: none;
+            }
+            
+            .zoom-slider {
+                width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <h1>📊 Policy Timeline Dashboard</h1>
+        </div>
+        <div class="header-right">
+            <button class="btn">📤 Export</button>
+            <button class="btn" onclick="openCalendar()">📅 Calendar</button>
+            <button class="btn-primary">+ Add Policy</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="filter-section" id="policiesFilter">
+                <h3>Policies</h3>
+                <div class="policy-item active" data-policy-id="POL001">
+                    <input type="checkbox" class="policy-checkbox" checked>
+                    <div class="policy-color" style="background: #4299e1;"></div>
+                    <span class="policy-name">Life Insurance A</span>
+                </div>
+                <div class="policy-item active" data-policy-id="POL002">
+                    <input type="checkbox" class="policy-checkbox" checked>
+                    <div class="policy-color" style="background: #48bb78;"></div>
+                    <span class="policy-name">Endowment B</span>
+                </div>
+                <div class="policy-item active" data-policy-id="POL003">
+                    <input type="checkbox" class="policy-checkbox" checked>
+                    <div class="policy-color" style="background: #ed8936;"></div>
+                    <span class="policy-name">Savings Plan C</span>
+                </div>
+                <div class="policy-item" data-policy-id="POL004">
+                    <input type="checkbox" class="policy-checkbox">
+                    <div class="policy-color" style="background: #9f7aea;"></div>
+                    <span class="policy-name">Investment D</span>
+                </div>
+            </div>
+            
+            <div class="filter-section" id="eventTypesFilter">
+                <h3>Event Types</h3>
+                <div class="policy-item active" data-event-type="dividend">
+                    <input type="checkbox" class="policy-checkbox" checked>
+                    <div class="policy-color" style="background: #48bb78;"></div>
+                    <span class="policy-name">💰 เงินปันผล</span>
+                </div>
+                <div class="policy-item active" data-event-type="maturity">
+                    <input type="checkbox" class="policy-checkbox" checked>
+                    <div class="policy-color" style="background: #ed8936;"></div>
+                    <span class="policy-name">🎯 ครบสัญญา</span>
+                </div>
+                <div class="policy-item active" data-event-type="premium">
+                    <input type="checkbox" class="policy-checkbox" checked>
+                    <div class="policy-color" style="background: #4299e1;"></div>
+                    <span class="policy-name">📅 เบี้ยประกัน</span>
+                </div>
+                <div class="policy-item active" data-event-type="bonus">
+                    <input type="checkbox" class="policy-checkbox" checked>
+                    <div class="policy-color" style="background: #9f7aea;"></div>
+                    <span class="policy-name">🎁 โบนัส</span>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h3>Quick Filters</h3>
+                <button class="btn" style="width: 100%; margin-bottom: 8px;" onclick="quickZoom(30)">Next 30 Days</button>
+                <button class="btn" style="width: 100%; margin-bottom: 8px;" onclick="quickZoom(365)">This Year</button>
+                <button class="btn" style="width: 100%;" onclick="quickZoom('custom')">Custom Range</button>
+            </div>
+        </div>
+
+        <!-- Timeline Container -->
+        <div class="timeline-container">
+            <!-- Enhanced Controls -->
+            <div class="controls">
+                <div class="time-range">
+                    <button class="time-btn" onclick="setTimeRange(1)">1Y</button>
+                    <button class="time-btn active" onclick="setTimeRange(5)">5Y</button>
+                    <button class="time-btn" onclick="setTimeRange(10)">10Y</button>
+                    <button class="time-btn" onclick="setTimeRange(99)">All</button>
+                </div>
+                
+                <div class="date-range-display">
+                    <button class="date-nav-btn" onclick="navigateDate(-1)">◀</button>
+                    <span id="dateRangeText">Jan 2025 - Dec 2029</span>
+                    <button class="date-nav-btn" onclick="navigateDate(1)">▶</button>
+                </div>
+                
+                <div class="zoom-panel">
+                    <span class="zoom-label">ZOOM</span>
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" onclick="adjustZoom(-1)" id="zoomOutBtn">−</button>
+                        <input type="range" class="zoom-slider" min="1" max="5" value="3" step="1" id="zoomSlider" oninput="updateZoom(this.value)">
+                        <button class="zoom-btn" onclick="adjustZoom(1)" id="zoomInBtn">+</button>
+                    </div>
+                    <div class="zoom-level-indicator" id="zoomLevel">Year View</div>
+                    <button class="btn" onclick="fitToScreen()">🔍 Fit</button>
+                </div>
+            </div>
+
+            <!-- Timeline Canvas -->
+            <div class="timeline-canvas" id="timelineCanvas">
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="spinner"></div>
+                </div>
+                
+                <div class="timeline-grid" id="timelineGrid">
+                    <!-- Year Markers (Dynamic) -->
+                    <div class="year-markers" id="yearMarkers">
+                        <!-- Generated by JS -->
+                    </div>
+
+                    <!-- Policy Lanes -->
+                    <div class="policy-lanes" id="policyLanes">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+                
+                <!-- Mini-map -->
+                <div class="minimap">
+                    <div class="minimap-label">
+                        <span>📍 Timeline Overview</span>
+                        <span class="minimap-info" id="minimapInfo">Drag to navigate</span>
+                    </div>
+                    <div class="minimap-track" id="minimapTrack">
+                        <!-- Policy bars generated by JS -->
+                        <div class="minimap-viewport" id="minimapViewport"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #48bb78;"></div>
+                    <span>Dividend/เงินปันผล</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #ed8936;"></div>
+                    <span>Maturity/ครบสัญญา</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #4299e1;"></div>
+                    <span>Premium/เบี้ยประกัน</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #9f7aea;"></div>
+                    <span>Bonus/โบนัส</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Panel -->
+        <div class="detail-panel">
+            <h3>Event Details</h3>
+            
+            <div class="detail-empty" id="detailEmpty">
+                <p>👆 Click on any event marker to see details</p>
+                <p style="margin-top: 12px; font-size: 12px;">💡 Tip: Use mouse wheel to zoom in/out</p>
+            </div>
+            
+            <div class="event-detail" style="display: none;" id="eventDetail">
+                <h4 id="eventTitle">💰 Dividend Payment</h4>
+                
+                <div class="amount-large" id="eventAmount">฿ 85,000</div>
+                
+                <!-- Detail rows will be dynamically inserted here -->
+                
+                <button class="btn btn-primary" style="width: 100%; margin-top: 16px;">
+                    View Policy Details →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+    
+    <!-- Zoom Toast -->
+    <div class="zoom-toast" id="zoomToast"></div>
+    
+    <!-- Calendar Modal -->
+    <div class="calendar-modal" id="calendarModal">
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <h2>📅 Event Calendar</h2>
+                <div class="calendar-nav">
+                    <button class="calendar-nav-btn" onclick="changeCalendarMonth(-1)">◀</button>
+                    <div class="calendar-current-month" id="calendarCurrentMonth">October 2025</div>
+                    <button class="calendar-nav-btn" onclick="changeCalendarMonth(1)">▶</button>
+                    <button class="btn" onclick="goToToday()">Today</button>
+                </div>
+                <button class="calendar-close" onclick="closeCalendar()">×</button>
+            </div>
+            <div class="calendar-body">
+                <div class="calendar-weekdays">
+                    <div class="calendar-weekday">Sun</div>
+                    <div class="calendar-weekday">Mon</div>
+                    <div class="calendar-weekday">Tue</div>
+                    <div class="calendar-weekday">Wed</div>
+                    <div class="calendar-weekday">Thu</div>
+                    <div class="calendar-weekday">Fri</div>
+                    <div class="calendar-weekday">Sat</div>
+                </div>
+                <div class="calendar-days" id="calendarDays">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+            <div class="calendar-legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #48bb78;"></div>
+                    <span>Dividend</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #ed8936;"></div>
+                    <span>Maturity</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #4299e1;"></div>
+                    <span>Premium</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #9f7aea;"></div>
+                    <span>Bonus</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const ZOOM_LEVELS = {
+            1: { name: 'Decade View', granularity: 'year', years: 10, eventSize: 'small' },
+            2: { name: 'Multi-Year', granularity: 'quarter', years: 5, eventSize: 'small' },
+            3: { name: 'Year View', granularity: 'month', years: 1, eventSize: 'medium' },
+            4: { name: 'Quarter View', granularity: 'week', years: 0.25, eventSize: 'large' },
+            5: { name: 'Month View', granularity: 'day', years: 0.083, eventSize: 'large' }
+        };
+
+        // Sample Data
+        const policies = [
+            {
+                id: 'POL001',
+                name: 'Life Insurance A',
+                color: '#4299e1',
+                startDate: new Date('2020-01-01'),
+                endDate: new Date('2119-12-31'),
+                events: [
+                    { date: new Date('2026-05-15'), type: 'dividend', amount: 85000 },
+                    { date: new Date('2027-05-15'), type: 'dividend', amount: 92000 },
+                    { date: new Date('2028-10-10'), type: 'bonus', amount: 150000 },
+                    { date: new Date('2029-05-15'), type: 'dividend', amount: 98000 },
+                    { date: new Date('2030-12-31'), type: 'maturity', amount: 5000000 }
+                ]
+            },
+            {
+                id: 'POL002',
+                name: 'Endowment B',
+                color: '#48bb78',
+                startDate: new Date('2022-03-01'),
+                endDate: new Date('2042-03-01'),
+                events: [
+                    { date: new Date('2025-11-20'), type: 'premium', amount: 12000 },
+                    { date: new Date('2026-03-15'), type: 'dividend', amount: 45000 },
+                    { date: new Date('2027-03-15'), type: 'dividend', amount: 48000 },
+                    { date: new Date('2028-03-15'), type: 'dividend', amount: 52000 },
+                    { date: new Date('2029-03-15'), type: 'dividend', amount: 55000 },
+                    { date: new Date('2042-03-01'), type: 'maturity', amount: 2800000 }
+                ]
+            },
+            {
+                id: 'POL003',
+                name: 'Savings Plan C',
+                color: '#ed8936',
+                startDate: new Date('2019-06-01'),
+                endDate: new Date('2044-06-01'),
+                events: [
+                    { date: new Date('2025-08-10'), type: 'premium', amount: 18000 },
+                    { date: new Date('2026-06-01'), type: 'dividend', amount: 65000 },
+                    { date: new Date('2027-12-15'), type: 'bonus', amount: 120000 },
+                    { date: new Date('2028-06-01'), type: 'dividend', amount: 72000 },
+                    { date: new Date('2029-06-01'), type: 'dividend', amount: 78000 },
+                    { date: new Date('2044-06-01'), type: 'maturity', amount: 3500000 }
+                ]
+            },
+            {
+                id: 'POL004',
+                name: 'Investment D',
+                color: '#9f7aea',
+                startDate: new Date('2023-09-01'),
+                endDate: new Date('2038-09-01'),
+                events: [
+                    { date: new Date('2026-09-01'), type: 'dividend', amount: 55000 },
+                    { date: new Date('2027-09-01'), type: 'dividend', amount: 60000 },
+                    { date: new Date('2028-03-15'), type: 'bonus', amount: 100000 },
+                    { date: new Date('2029-09-01'), type: 'dividend', amount: 65000 },
+                    { date: new Date('2038-09-01'), type: 'maturity', amount: 2200000 }
+                ]
+            }
+        ];
+
+        // State
+        let currentZoomLevel = 3;
+        let currentStartDate = new Date('2025-01-01');
+        let activePolicies = ['POL001', 'POL002', 'POL003'];
+        let activeEventTypes = ['dividend', 'maturity', 'premium', 'bonus'];
+        let selectedEvent = null;
+        let calendarDate = new Date();
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTimeline();
+            setupEventListeners();
+            setupMinimapInteraction();
+            updateZoomUI();
+        });
+
+        // Zoom Functions
+        function updateZoom(level) {
+            currentZoomLevel = parseInt(level);
+            showLoading(true);
+            
+            setTimeout(() => {
+                renderTimeline();
+                updateZoomUI();
+                showZoomToast();
+                showLoading(false);
+            }, 300);
+        }
+
+        function adjustZoom(delta) {
+            const newLevel = Math.max(1, Math.min(5, currentZoomLevel + delta));
+            document.getElementById('zoomSlider').value = newLevel;
+            updateZoom(newLevel);
+        }
+
+        function updateZoomUI() {
+            const config = ZOOM_LEVELS[currentZoomLevel];
+            document.getElementById('zoomLevel').textContent = config.name;
+            
+            // Update button states
+            document.getElementById('zoomOutBtn').disabled = currentZoomLevel === 1;
+            document.getElementById('zoomInBtn').disabled = currentZoomLevel === 5;
+            
+            // Update date range text
+            updateDateRangeText();
+        }
+
+        function updateDateRangeText() {
+            const config = ZOOM_LEVELS[currentZoomLevel];
+            const endDate = new Date(currentStartDate);
+            endDate.setFullYear(endDate.getFullYear() + config.years);
+            
+            const formatter = new Intl.DateTimeFormat('en-GB', { 
+                month: 'short', 
+                year: 'numeric' 
+            });
+            
+            document.getElementById('dateRangeText').textContent = 
+                `${formatter.format(currentStartDate)} - ${formatter.format(endDate)}`;
+        }
+
+        function showZoomToast() {
+            const toast = document.getElementById('zoomToast');
+            const config = ZOOM_LEVELS[currentZoomLevel];
+            toast.textContent = `🔍 ${config.name} • Showing ${config.granularity}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // Render Timeline
+        function renderTimeline() {
+            const config = ZOOM_LEVELS[currentZoomLevel];
+            renderYearMarkers(config);
+            renderPolicyLanes(config);
+            updateMinimap();
+        }
+
+        function renderYearMarkers(config) {
+            const markersContainer = document.getElementById('yearMarkers');
+            markersContainer.innerHTML = '';
+            
+            const startYear = currentStartDate.getFullYear();
+            const endDate = new Date(currentStartDate);
+            endDate.setFullYear(endDate.getFullYear() + config.years);
+            
+            let markers = [];
+            
+            switch(config.granularity) {
+                case 'year':
+                    // Show every year
+                    for (let y = startYear; y <= endDate.getFullYear(); y++) {
+                        markers.push(`<div class="year-marker major">${y}</div>`);
+                    }
+                    break;
+                    
+                case 'quarter':
+                    // Show quarters
+                    let currentDate = new Date(currentStartDate);
+                    while (currentDate <= endDate) {
+                        const year = currentDate.getFullYear();
+                        const quarter = Math.floor(currentDate.getMonth() / 3) + 1;
+                        markers.push(`
+                            <div class="year-marker">
+                                ${year}
+                                <span class="sub-label">Q${quarter}</span>
+                            </div>
+                        `);
+                        currentDate.setMonth(currentDate.getMonth() + 3);
+                    }
+                    break;
+                    
+                case 'month':
+                    // Show months
+                    let monthDate = new Date(currentStartDate);
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    while (monthDate <= endDate) {
+                        const isMajor = monthDate.getMonth() === 0;
+                        markers.push(`
+                            <div class="year-marker ${isMajor ? 'major' : ''}">
+                                ${monthNames[monthDate.getMonth()]}
+                                ${isMajor ? `<span class="sub-label">${monthDate.getFullYear()}</span>` : ''}
+                            </div>
+                        `);
+                        monthDate.setMonth(monthDate.getMonth() + 1);
+                    }
+                    break;
+                    
+                case 'week':
+                    // Show weeks
+                    let weekDate = new Date(currentStartDate);
+                    let weekNum = 1;
+                    while (weekDate <= endDate) {
+                        const monthName = weekDate.toLocaleDateString('en-GB', { month: 'short' });
+                        markers.push(`
+                            <div class="year-marker">
+                                W${weekNum}
+                                <span class="sub-label">${monthName}</span>
+                            </div>
+                        `);
+                        weekDate.setDate(weekDate.getDate() + 7);
+                        weekNum++;
+                    }
+                    break;
+                    
+                case 'day':
+                    // Show days
+                    let dayDate = new Date(currentStartDate);
+                    while (dayDate <= endDate) {
+                        const day = dayDate.getDate();
+                        const isMajor = day === 1;
+                        markers.push(`
+                            <div class="year-marker ${isMajor ? 'major' : ''}">
+                                ${day}
+                                ${isMajor ? `<span class="sub-label">${dayDate.toLocaleDateString('en-GB', { month: 'short' })}</span>` : ''}
+                            </div>
+                        `);
+                        dayDate.setDate(dayDate.getDate() + 1);
+                    }
+                    break;
+            }
+            
+            markersContainer.innerHTML = markers.join('');
+        }
+
+        function renderPolicyLanes(config) {
+            const lanesContainer = document.getElementById('policyLanes');
+            lanesContainer.innerHTML = '';
+            
+            const endDate = new Date(currentStartDate);
+            endDate.setFullYear(endDate.getFullYear() + config.years);
+            
+            policies.forEach(policy => {
+                if (!activePolicies.includes(policy.id)) return;
+                
+                // Calculate policy bar position
+                const policyStart = Math.max(policy.startDate, currentStartDate);
+                const policyEnd = Math.min(policy.endDate, endDate);
+                
+                const totalRange = endDate - currentStartDate;
+                const leftPercent = ((policyStart - currentStartDate) / totalRange) * 100;
+                const widthPercent = ((policyEnd - policyStart) / totalRange) * 100;
+                
+                // Create lane
+                const lane = document.createElement('div');
+                lane.className = 'policy-lane';
+                lane.innerHTML = `
+                    <div class="lane-label">${policy.name}</div>
+                    <div class="lane-bar" style="left: ${leftPercent}%; width: ${widthPercent}%; background: linear-gradient(90deg, ${policy.color} 0%, ${policy.color}cc 100%);">
+                    </div>
+                `;
+                
+                // Add events
+                const laneBar = lane.querySelector('.lane-bar');
+                policy.events.forEach(event => {
+                    // Check if event type is active and event is in date range
+                    if (activeEventTypes.includes(event.type) && 
+                        event.date >= currentStartDate && 
+                        event.date <= endDate) {
+                        const eventPercent = ((event.date - currentStartDate) / totalRange) * 100;
+                        
+                        const eventMarker = document.createElement('div');
+                        eventMarker.className = `event ${event.type} size-${config.eventSize}`;
+                        eventMarker.style.left = `${eventPercent}%`;
+                        eventMarker.innerHTML = '<span class="event-icon">' + getEventIcon(event.type) + '</span>';
+                        
+                        eventMarker.dataset.policy = policy.name;
+                        eventMarker.dataset.type = event.type;
+                        eventMarker.dataset.date = event.date.toLocaleDateString('en-GB');
+                        eventMarker.dataset.amount = event.amount;
+                        
+                        laneBar.appendChild(eventMarker);
+                    }
+                });
+                
+                lanesContainer.appendChild(lane);
+            });
+            
+            // Re-attach event listeners
+            attachEventListeners();
+        }
+
+        function getEventIcon(type) {
+            const icons = {
+                dividend: '💰',
+                maturity: '🎯',
+                premium: '📅',
+                bonus: '🎁'
+            };
+            return icons[type] || '●';
+        }
+
+        // Minimap Functions
+        function updateMinimap() {
+            const minimapTrack = document.getElementById('minimapTrack');
+            const minimapViewport = document.getElementById('minimapViewport');
+            
+            // Find the full date range across all policies
+            let minDate = new Date();
+            let maxDate = new Date();
+            
+            policies.forEach(policy => {
+                if (policy.startDate < minDate) minDate = policy.startDate;
+                if (policy.endDate > maxDate) maxDate = policy.endDate;
+                policy.events.forEach(event => {
+                    if (event.date < minDate) minDate = event.date;
+                    if (event.date > maxDate) maxDate = event.date;
+                });
+            });
+            
+            const totalRange = maxDate - minDate;
+            
+            // Clear existing policy bars (keep viewport)
+            const existingPolicies = minimapTrack.querySelectorAll('.minimap-policy, .minimap-event');
+            existingPolicies.forEach(el => el.remove());
+            
+            // Draw policy bars
+            policies.forEach((policy, index) => {
+                if (!activePolicies.includes(policy.id)) return;
+                
+                const leftPercent = ((policy.startDate - minDate) / totalRange) * 100;
+                const widthPercent = ((policy.endDate - policy.startDate) / totalRange) * 100;
+                
+                const policyBar = document.createElement('div');
+                policyBar.className = 'minimap-policy';
+                policyBar.style.left = `${leftPercent}%`;
+                policyBar.style.width = `${widthPercent}%`;
+                policyBar.style.background = policy.color;
+                policyBar.style.top = `${30 + (index * 3)}%`;
+                
+                minimapTrack.insertBefore(policyBar, minimapViewport);
+                
+                // Add event markers
+                policy.events.forEach(event => {
+                    // Only show events that are in active event types
+                    if (activeEventTypes.includes(event.type)) {
+                        const eventPercent = ((event.date - minDate) / totalRange) * 100;
+                        const eventDot = document.createElement('div');
+                        eventDot.className = 'minimap-event';
+                        eventDot.style.left = `${eventPercent}%`;
+                        eventDot.style.top = `${30 + (index * 3)}%`;
+                        minimapTrack.insertBefore(eventDot, minimapViewport);
+                    }
+                });
+            });
+            
+            // Update viewport position and size
+            const config = ZOOM_LEVELS[currentZoomLevel];
+            const viewStartDate = currentStartDate;
+            const viewEndDate = new Date(currentStartDate);
+            viewEndDate.setFullYear(viewEndDate.getFullYear() + config.years);
+            
+            const viewLeftPercent = Math.max(0, ((viewStartDate - minDate) / totalRange) * 100);
+            const viewWidthPercent = Math.min(100 - viewLeftPercent, ((viewEndDate - viewStartDate) / totalRange) * 100);
+            
+            minimapViewport.style.left = `${viewLeftPercent}%`;
+            minimapViewport.style.width = `${viewWidthPercent}%`;
+            
+            // Update info text
+            const infoText = `${viewStartDate.getFullYear()} - ${viewEndDate.getFullYear()}`;
+            document.getElementById('minimapInfo').textContent = infoText;
+            
+            // Store range for interaction
+            minimapTrack.dataset.minDate = minDate.getTime();
+            minimapTrack.dataset.maxDate = maxDate.getTime();
+        }
+        
+        function setupMinimapInteraction() {
+            const minimapTrack = document.getElementById('minimapTrack');
+            const minimapViewport = document.getElementById('minimapViewport');
+            let isDragging = false;
+            let startX = 0;
+            let startLeft = 0;
+            
+            // Drag viewport
+            minimapViewport.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                const viewportRect = minimapViewport.getBoundingClientRect();
+                const trackRect = minimapTrack.getBoundingClientRect();
+                startLeft = viewportRect.left - trackRect.left;
+                e.stopPropagation();
+            });
+            
+            // Click track to jump
+            minimapTrack.addEventListener('mousedown', (e) => {
+                if (e.target === minimapTrack) {
+                    const trackRect = minimapTrack.getBoundingClientRect();
+                    const clickPercent = ((e.clientX - trackRect.left) / trackRect.width) * 100;
+                    jumpToMinimapPosition(clickPercent);
+                }
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const trackRect = minimapTrack.getBoundingClientRect();
+                const deltaX = e.clientX - startX;
+                const newLeft = startLeft + deltaX;
+                const newLeftPercent = (newLeft / trackRect.width) * 100;
+                
+                // Constrain viewport within track
+                const viewportWidth = parseFloat(minimapViewport.style.width);
+                const constrainedLeft = Math.max(0, Math.min(100 - viewportWidth, newLeftPercent));
+                
+                // Update timeline based on new position
+                updateTimelineFromMinimap(constrainedLeft);
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+        }
+        
+        function updateTimelineFromMinimap(leftPercent) {
+            const minimapTrack = document.getElementById('minimapTrack');
+            const minDate = new Date(parseInt(minimapTrack.dataset.minDate));
+            const maxDate = new Date(parseInt(minimapTrack.dataset.maxDate));
+            const totalRange = maxDate - minDate;
+            
+            const newStartDate = new Date(minDate.getTime() + (totalRange * leftPercent / 100));
+            currentStartDate = newStartDate;
+            
+            renderTimeline();
+            updateZoomUI();
+        }
+        
+        function jumpToMinimapPosition(clickPercent) {
+            const minimapViewport = document.getElementById('minimapViewport');
+            const viewportWidth = parseFloat(minimapViewport.style.width);
+            
+            // Center viewport on click position
+            const newLeftPercent = Math.max(0, Math.min(100 - viewportWidth, clickPercent - (viewportWidth / 2)));
+            
+            updateTimelineFromMinimap(newLeftPercent);
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Mouse wheel zoom
+            const canvas = document.getElementById('timelineCanvas');
+            canvas.addEventListener('wheel', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -1 : 1;
+                    adjustZoom(delta);
+                }
+            });
+            
+            // Policy filter - only attach to items with data-policy-id
+            const policyItems = document.querySelectorAll('#policiesFilter .policy-item[data-policy-id]');
+            policyItems.forEach(item => {
+                const checkbox = item.querySelector('.policy-checkbox');
+                item.addEventListener('click', (e) => {
+                    if (e.target !== checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    item.classList.toggle('active', checkbox.checked);
+                    updateActivePolicies();
+                });
+            });
+            
+            // Event type filter - only attach to items with data-event-type
+            const eventTypeItems = document.querySelectorAll('#eventTypesFilter .policy-item[data-event-type]');
+            eventTypeItems.forEach(item => {
+                const checkbox = item.querySelector('.policy-checkbox');
+                item.addEventListener('click', (e) => {
+                    if (e.target !== checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    item.classList.toggle('active', checkbox.checked);
+                    updateActiveEventTypes();
+                });
+            });
+        }
+
+        function attachEventListeners() {
+            const events = document.querySelectorAll('.event');
+            const tooltip = document.getElementById('tooltip');
+            
+            events.forEach(event => {
+                // Hover tooltip
+                event.addEventListener('mouseenter', (e) => {
+                    const target = e.target.closest('.event');
+                    if (!target) return;
+                    
+                    const amount = new Intl.NumberFormat('th-TH', { 
+                        style: 'currency', 
+                        currency: 'THB' 
+                    }).format(target.dataset.amount);
+                    
+                    tooltip.innerHTML = `
+                        <strong>${target.dataset.policy}</strong><br>
+                        ${getEventName(target.dataset.type)}<br>
+                        ${amount}<br>
+                        ${target.dataset.date}
+                    `;
+                    tooltip.classList.add('show');
+                });
+                
+                event.addEventListener('mousemove', (e) => {
+                    tooltip.style.left = (e.clientX + 15) + 'px';
+                    tooltip.style.top = (e.clientY + 15) + 'px';
+                });
+                
+                event.addEventListener('mouseleave', () => {
+                    tooltip.classList.remove('show');
+                });
+                
+                // Click to show detail
+                event.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const target = e.target.closest('.event');
+                    if (!target) return;
+                    
+                    console.log('Event clicked:', target.dataset);
+                    showEventDetail(target.dataset);
+                    
+                    // Highlight selected
+                    events.forEach(ev => ev.style.zIndex = '3');
+                    target.style.zIndex = '10';
+                    selectedEvent = target;
+                });
+            });
+        }
+
+        function getEventName(type) {
+            const names = {
+                dividend: 'Dividend Payment',
+                maturity: 'Maturity Payment',
+                premium: 'Premium Due',
+                bonus: 'Bonus Payment'
+            };
+            return names[type] || type;
+        }
+
+        function showEventDetail(data) {
+            console.log('showEventDetail called with:', data);
+            
+            const detailEmpty = document.getElementById('detailEmpty');
+            const eventDetail = document.getElementById('eventDetail');
+            
+            // Hide empty state
+            detailEmpty.style.display = 'none';
+            
+            // Show detail panel
+            eventDetail.style.display = 'block';
+            
+            const amount = new Intl.NumberFormat('th-TH', { 
+                style: 'currency', 
+                currency: 'THB' 
+            }).format(data.amount);
+            
+            // Parse the date string (DD/MM/YYYY format)
+            const dateParts = data.date.split('/');
+            const eventDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            eventDate.setHours(0, 0, 0, 0);
+            
+            // Calculate days until event
+            const daysUntil = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
+            
+            // Determine status
+            let status = '';
+            let statusColor = '';
+            if (daysUntil < 0) {
+                status = '● Past';
+                statusColor = '#a0aec0';
+            } else if (daysUntil === 0) {
+                status = '● Today';
+                statusColor = '#f59e0b';
+            } else if (daysUntil <= 30) {
+                status = '● Upcoming Soon';
+                statusColor = '#f59e0b';
+            } else {
+                status = '● Upcoming';
+                statusColor = '#48bb78';
+            }
+            
+            // Update title and amount
+            document.getElementById('eventTitle').textContent = getEventIcon(data.type) + ' ' + getEventName(data.type);
+            document.getElementById('eventAmount').textContent = amount;
+            
+            // Clear existing detail rows (except title, amount, and button)
+            const existingRows = eventDetail.querySelectorAll('.detail-row');
+            existingRows.forEach(row => row.remove());
+            
+            // Get the button element
+            const button = eventDetail.querySelector('.btn-primary');
+            
+            // Create new rows structure
+            const rowsHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Policy</span>
+                    <span class="detail-value">${data.policy}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Type</span>
+                    <span class="detail-value">${getEventName(data.type)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value">${data.date}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value" style="color: ${statusColor};">${status}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">${daysUntil >= 0 ? 'Days Until' : 'Days Ago'}</span>
+                    <span class="detail-value">${Math.abs(daysUntil)} days</span>
+                </div>
+            `;
+            
+            // Insert before button
+            button.insertAdjacentHTML('beforebegin', rowsHTML);
+            
+            console.log('Event detail updated successfully');
+        }
+
+        // Navigation
+        function navigateDate(direction) {
+            const config = ZOOM_LEVELS[currentZoomLevel];
+            const months = Math.floor(config.years * 12);
+            
+            currentStartDate.setMonth(currentStartDate.getMonth() + (months * direction));
+            renderTimeline();
+            updateZoomUI();
+        }
+
+        function setTimeRange(years) {
+            // Update active button
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Adjust zoom level based on years
+            if (years === 1) currentZoomLevel = 3;
+            else if (years === 5) currentZoomLevel = 2;
+            else if (years === 10) currentZoomLevel = 1;
+            else currentZoomLevel = 1;
+            
+            document.getElementById('zoomSlider').value = currentZoomLevel;
+            updateZoom(currentZoomLevel);
+        }
+
+        function quickZoom(days) {
+            if (days === 30) {
+                currentZoomLevel = 4;
+                currentStartDate = new Date();
+            } else if (days === 365) {
+                currentZoomLevel = 3;
+                currentStartDate = new Date();
+            }
+            
+            document.getElementById('zoomSlider').value = currentZoomLevel;
+            updateZoom(currentZoomLevel);
+        }
+
+        function fitToScreen() {
+            // Find earliest and latest dates
+            let minDate = new Date();
+            let maxDate = new Date();
+            
+            policies.forEach(policy => {
+                policy.events.forEach(event => {
+                    if (event.date < minDate) minDate = event.date;
+                    if (event.date > maxDate) maxDate = event.date;
+                });
+            });
+            
+            const years = (maxDate - minDate) / (365.25 * 24 * 60 * 60 * 1000);
+            
+            if (years < 1) currentZoomLevel = 3;
+            else if (years < 5) currentZoomLevel = 2;
+            else currentZoomLevel = 1;
+            
+            currentStartDate = new Date(minDate);
+            document.getElementById('zoomSlider').value = currentZoomLevel;
+            updateZoom(currentZoomLevel);
+        }
+
+        function updateActivePolicies() {
+            activePolicies = [];
+            document.querySelectorAll('#policiesFilter .policy-item[data-policy-id]').forEach((item) => {
+                const checkbox = item.querySelector('.policy-checkbox');
+                if (checkbox.checked) {
+                    const policyId = item.dataset.policyId;
+                    activePolicies.push(policyId);
+                }
+            });
+            renderTimeline();
+        }
+        
+        function updateActiveEventTypes() {
+            activeEventTypes = [];
+            document.querySelectorAll('#eventTypesFilter .policy-item[data-event-type]').forEach((item) => {
+                const checkbox = item.querySelector('.policy-checkbox');
+                if (checkbox.checked) {
+                    const eventType = item.dataset.eventType;
+                    activeEventTypes.push(eventType);
+                }
+            });
+            renderTimeline();
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('active', show);
+        }
+        
+        // Calendar Functions
+        function openCalendar() {
+            calendarDate = new Date();
+            renderCalendar();
+            document.getElementById('calendarModal').classList.add('active');
+        }
+        
+        function closeCalendar() {
+            document.getElementById('calendarModal').classList.remove('active');
+        }
+        
+        function changeCalendarMonth(delta) {
+            calendarDate.setMonth(calendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+        
+        function goToToday() {
+            calendarDate = new Date();
+            renderCalendar();
+        }
+        
+        function renderCalendar() {
+            const year = calendarDate.getFullYear();
+            const month = calendarDate.getMonth();
+            
+            // Update header
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('calendarCurrentMonth').textContent = `${monthNames[month]} ${year}`;
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+            
+            // Get previous month days
+            const prevMonthLastDay = new Date(year, month, 0);
+            const prevMonthDays = prevMonthLastDay.getDate();
+            
+            // Build calendar
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+            
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            
+            // Add previous month days
+            for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+                const day = prevMonthDays - i;
+                const dayEl = createCalendarDay(day, year, month - 1, true);
+                calendarDays.appendChild(dayEl);
+            }
+            
+            // Add current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayEl = createCalendarDay(day, year, month, false);
+                
+                // Check if today
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                if (dateStr === todayStr) {
+                    dayEl.classList.add('today');
+                }
+                
+                calendarDays.appendChild(dayEl);
+            }
+            
+            // Add next month days
+            const totalCells = calendarDays.children.length;
+            const remainingCells = 42 - totalCells; // 6 rows * 7 days
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayEl = createCalendarDay(day, year, month + 1, true);
+                calendarDays.appendChild(dayEl);
+            }
+        }
+        
+        function createCalendarDay(day, year, month, isOtherMonth) {
+            const dayEl = document.createElement('div');
+            dayEl.className = 'calendar-day';
+            if (isOtherMonth) {
+                dayEl.classList.add('other-month');
+            }
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'calendar-day-number';
+            dayNumber.textContent = day;
+            dayEl.appendChild(dayNumber);
+            
+            // Find events for this day
+            const dateStr = new Date(year, month, day);
+            const eventsContainer = document.createElement('div');
+            eventsContainer.className = 'calendar-events';
+            
+            let eventCount = 0;
+            policies.forEach(policy => {
+                if (!activePolicies.includes(policy.id)) return;
+                
+                policy.events.forEach(event => {
+                    if (!activeEventTypes.includes(event.type)) return;
+                    
+                    const eventDate = event.date;
+                    if (eventDate.getFullYear() === dateStr.getFullYear() &&
+                        eventDate.getMonth() === dateStr.getMonth() &&
+                        eventDate.getDate() === dateStr.getDate()) {
+                        
+                        if (eventCount < 3) { // Limit to 3 events visible
+                            const eventEl = document.createElement('div');
+                            eventEl.className = `calendar-event ${event.type}`;
+                            eventEl.textContent = `${getEventIcon(event.type)} ${policy.name}`;
+                            eventEl.title = `${getEventName(event.type)} - ${policy.name} - ${new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(event.amount)}`;
+                            eventsContainer.appendChild(eventEl);
+                        }
+                        eventCount++;
+                    }
+                });
+            });
+            
+            // Show +N more if there are more events
+            if (eventCount > 3) {
+                const moreEl = document.createElement('div');
+                moreEl.className = 'calendar-event';
+                moreEl.style.background = '#718096';
+                moreEl.textContent = `+${eventCount - 3} more`;
+                eventsContainer.appendChild(moreEl);
+            }
+            
+            dayEl.appendChild(eventsContainer);
+            
+            return dayEl;
+        }
+        
+        // Close calendar when clicking outside
+        document.addEventListener('click', (e) => {
+            const calendarModal = document.getElementById('calendarModal');
+            if (e.target === calendarModal) {
+                closeCalendar();
+            }
+        });
+
+        // Close detail panel when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.event') && !e.target.closest('.detail-panel')) {
+                document.getElementById('detailEmpty').style.display = 'block';
+                document.getElementById('eventDetail').style.display = 'none';
+                
+                if (selectedEvent) {
+                    selectedEvent.style.zIndex = '3';
+                    selectedEvent = null;
+                }
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '+' || e.key === '=') {
+                e.preventDefault();
+                adjustZoom(1);
+            } else if (e.key === '-' || e.key === '_') {
+                e.preventDefault();
+                adjustZoom(-1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                navigateDate(-1);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                navigateDate(1);
+            } else if (e.key === '0') {
+                e.preventDefault();
+                fitToScreen();
+            }
+        });
+    </script>
+</body>
+</html><span class="detail-label">Policy</span>
+                    <span class="detail-value" id="eventPolicy">Life Insurance A</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value" id="eventDate">15 May 2026</span>
+                </div>
+                
+                <div class="detail-row">
