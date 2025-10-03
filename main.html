@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Policy Timeline with Advanced Zoom</title>
+    <title>ไทม์ไลน์กรมธรรม์ พร้อมการซูมขั้นสูง</title>
     <style>
         * {
             margin: 0;
@@ -364,7 +364,7 @@
         
         .lane-label {
             position: absolute;
-            left: 0;
+            left: 20px;
             top: 50%;
             transform: translateY(-50%);
             font-size: 13px;
@@ -967,12 +967,12 @@
     <!-- Header -->
     <div class="header">
         <div class="header-left">
-            <h1>📊 Policy Timeline Dashboard</h1>
+            <h1>📊 แดชบอร์ดไทม์ไลน์กรมธรรม์</h1>
         </div>
         <div class="header-right">
-            <button class="btn">📤 Export</button>
-            <button class="btn" onclick="openCalendar()">📅 Calendar</button>
-            <button class="btn-primary">+ Add Policy</button>
+            <button class="btn">📤 ส่งออก</button>
+            <button class="btn" onclick="openCalendar()">📅 ปฏิทิน</button>
+            <button class="btn-primary">+ เพิ่มกรมธรรม์</button>
         </div>
     </div>
 
@@ -981,31 +981,31 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="filter-section" id="policiesFilter">
-                <h3>Policies</h3>
+                <h3>กรมธรรม์</h3>
                 <div class="policy-item active" data-policy-id="POL001">
                     <input type="checkbox" class="policy-checkbox" checked>
                     <div class="policy-color" style="background: #4299e1;"></div>
-                    <span class="policy-name">Life Insurance A</span>
+                    <span class="policy-name">ประกันชีวิต A</span>
                 </div>
                 <div class="policy-item active" data-policy-id="POL002">
                     <input type="checkbox" class="policy-checkbox" checked>
                     <div class="policy-color" style="background: #48bb78;"></div>
-                    <span class="policy-name">Endowment B</span>
+                    <span class="policy-name">ประกันสะสมทรัพย์ B</span>
                 </div>
                 <div class="policy-item active" data-policy-id="POL003">
                     <input type="checkbox" class="policy-checkbox" checked>
                     <div class="policy-color" style="background: #ed8936;"></div>
-                    <span class="policy-name">Savings Plan C</span>
+                    <span class="policy-name">แผนออมทรัพย์ C</span>
                 </div>
                 <div class="policy-item" data-policy-id="POL004">
                     <input type="checkbox" class="policy-checkbox">
                     <div class="policy-color" style="background: #9f7aea;"></div>
-                    <span class="policy-name">Investment D</span>
+                    <span class="policy-name">กองทุนลงทุน D</span>
                 </div>
             </div>
             
             <div class="filter-section" id="eventTypesFilter">
-                <h3>Event Types</h3>
+                <h3>ประเภทเหตุการณ์</h3>
                 <div class="policy-item active" data-event-type="dividend">
                     <input type="checkbox" class="policy-checkbox" checked>
                     <div class="policy-color" style="background: #48bb78;"></div>
@@ -1014,7 +1014,7 @@
                 <div class="policy-item active" data-event-type="maturity">
                     <input type="checkbox" class="policy-checkbox" checked>
                     <div class="policy-color" style="background: #ed8936;"></div>
-                    <span class="policy-name">🎯 ครบสัญญา</span>
+                    <span class="policy-name">🎯 ครบกำหนด</span>
                 </div>
                 <div class="policy-item active" data-event-type="premium">
                     <input type="checkbox" class="policy-checkbox" checked>
@@ -1029,10 +1029,10 @@
             </div>
             
             <div class="filter-section">
-                <h3>Quick Filters</h3>
-                <button class="btn" style="width: 100%; margin-bottom: 8px;" onclick="quickZoom(30)">Next 30 Days</button>
-                <button class="btn" style="width: 100%; margin-bottom: 8px;" onclick="quickZoom(365)">This Year</button>
-                <button class="btn" style="width: 100%;" onclick="quickZoom('custom')">Custom Range</button>
+                <h3>ตัวกรองด่วน</h3>
+                <button class="btn" style="width: 100%; margin-bottom: 8px;" onclick="quickZoom(30)">30 วันถัดไป</button>
+                <button class="btn" style="width: 100%; margin-bottom: 8px;" onclick="quickZoom(365)">ปีนี้</button>
+                <button class="btn" style="width: 100%;" onclick="quickZoom('custom')">กำหนดช่วงเอง</button>
             </div>
         </div>
 
@@ -1041,27 +1041,27 @@
             <!-- Enhanced Controls -->
             <div class="controls">
                 <div class="time-range">
-                    <button class="time-btn" onclick="setTimeRange(1)">1Y</button>
-                    <button class="time-btn active" onclick="setTimeRange(5)">5Y</button>
-                    <button class="time-btn" onclick="setTimeRange(10)">10Y</button>
-                    <button class="time-btn" onclick="setTimeRange(99)">All</button>
+                    <button class="time-btn" onclick="setTimeRange(1)">1ปี</button>
+                    <button class="time-btn active" onclick="setTimeRange(5)">5ปี</button>
+                    <button class="time-btn" onclick="setTimeRange(10)">10ปี</button>
+                    <button class="time-btn" onclick="setTimeRange(99)">ทั้งหมด</button>
                 </div>
                 
                 <div class="date-range-display">
                     <button class="date-nav-btn" onclick="navigateDate(-1)">◀</button>
-                    <span id="dateRangeText">Jan 2025 - Dec 2029</span>
+                    <span id="dateRangeText">ม.ค. 2025 - ธ.ค. 2029</span>
                     <button class="date-nav-btn" onclick="navigateDate(1)">▶</button>
                 </div>
                 
                 <div class="zoom-panel">
-                    <span class="zoom-label">ZOOM</span>
+                    <span class="zoom-label">ซูม</span>
                     <div class="zoom-controls">
                         <button class="zoom-btn" onclick="adjustZoom(-1)" id="zoomOutBtn">−</button>
                         <input type="range" class="zoom-slider" min="1" max="5" value="3" step="1" id="zoomSlider" oninput="updateZoom(this.value)">
                         <button class="zoom-btn" onclick="adjustZoom(1)" id="zoomInBtn">+</button>
                     </div>
-                    <div class="zoom-level-indicator" id="zoomLevel">Year View</div>
-                    <button class="btn" onclick="fitToScreen()">🔍 Fit</button>
+                    <div class="zoom-level-indicator" id="zoomLevel">มุมมองรายปี</div>
+                    <button class="btn" onclick="fitToScreen()">🔍 พอดีหน้าจอ</button>
                 </div>
             </div>
 
@@ -1086,8 +1086,8 @@
                 <!-- Mini-map -->
                 <div class="minimap">
                     <div class="minimap-label">
-                        <span>📍 Timeline Overview</span>
-                        <span class="minimap-info" id="minimapInfo">Drag to navigate</span>
+                        <span>📍 ภาพรวมไทม์ไลน์</span>
+                        <span class="minimap-info" id="minimapInfo">ลากเพื่อนำทาง</span>
                     </div>
                     <div class="minimap-track" id="minimapTrack">
                         <!-- Policy bars generated by JS -->
@@ -1100,41 +1100,41 @@
             <div class="legend">
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #48bb78;"></div>
-                    <span>Dividend/เงินปันผล</span>
+                    <span>เงินปันผล</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #ed8936;"></div>
-                    <span>Maturity/ครบสัญญา</span>
+                    <span>ครบกำหนด</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #4299e1;"></div>
-                    <span>Premium/เบี้ยประกัน</span>
+                    <span>เบี้ยประกัน</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #9f7aea;"></div>
-                    <span>Bonus/โบนัส</span>
+                    <span>โบนัส</span>
                 </div>
             </div>
         </div>
 
         <!-- Detail Panel -->
         <div class="detail-panel">
-            <h3>Event Details</h3>
+            <h3>รายละเอียดเหตุการณ์</h3>
             
             <div class="detail-empty" id="detailEmpty">
-                <p>👆 Click on any event marker to see details</p>
-                <p style="margin-top: 12px; font-size: 12px;">💡 Tip: Use mouse wheel to zoom in/out</p>
+                <p>👆 คลิกที่จุดเหตุการณ์เพื่อดูรายละเอียด</p>
+                <p style="margin-top: 12px; font-size: 12px;">💡 เคล็ดลับ: ใช้ล้อเมาส์เพื่อซูมเข้า/ออก</p>
             </div>
             
             <div class="event-detail" style="display: none;" id="eventDetail">
-                <h4 id="eventTitle">💰 Dividend Payment</h4>
+                <h4 id="eventTitle">💰 การจ่ายเงินปันผล</h4>
                 
                 <div class="amount-large" id="eventAmount">฿ 85,000</div>
                 
                 <!-- Detail rows will be dynamically inserted here -->
                 
                 <button class="btn btn-primary" style="width: 100%; margin-top: 16px;">
-                    View Policy Details →
+                    ดูรายละเอียดกรมธรรม์ →
                 </button>
             </div>
         </div>
@@ -1150,24 +1150,24 @@
     <div class="calendar-modal" id="calendarModal">
         <div class="calendar-container">
             <div class="calendar-header">
-                <h2>📅 Event Calendar</h2>
+                <h2>📅 ปฏิทินเหตุการณ์</h2>
                 <div class="calendar-nav">
                     <button class="calendar-nav-btn" onclick="changeCalendarMonth(-1)">◀</button>
-                    <div class="calendar-current-month" id="calendarCurrentMonth">October 2025</div>
+                    <div class="calendar-current-month" id="calendarCurrentMonth">ตุลาคม 2025</div>
                     <button class="calendar-nav-btn" onclick="changeCalendarMonth(1)">▶</button>
-                    <button class="btn" onclick="goToToday()">Today</button>
+                    <button class="btn" onclick="goToToday()">วันนี้</button>
                 </div>
                 <button class="calendar-close" onclick="closeCalendar()">×</button>
             </div>
             <div class="calendar-body">
                 <div class="calendar-weekdays">
-                    <div class="calendar-weekday">Sun</div>
-                    <div class="calendar-weekday">Mon</div>
-                    <div class="calendar-weekday">Tue</div>
-                    <div class="calendar-weekday">Wed</div>
-                    <div class="calendar-weekday">Thu</div>
-                    <div class="calendar-weekday">Fri</div>
-                    <div class="calendar-weekday">Sat</div>
+                    <div class="calendar-weekday">อา.</div>
+                    <div class="calendar-weekday">จ.</div>
+                    <div class="calendar-weekday">อ.</div>
+                    <div class="calendar-weekday">พ.</div>
+                    <div class="calendar-weekday">พฤ.</div>
+                    <div class="calendar-weekday">ศ.</div>
+                    <div class="calendar-weekday">ส.</div>
                 </div>
                 <div class="calendar-days" id="calendarDays">
                     <!-- Generated by JS -->
@@ -1176,19 +1176,19 @@
             <div class="calendar-legend">
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #48bb78;"></div>
-                    <span>Dividend</span>
+                    <span>เงินปันผล</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #ed8936;"></div>
-                    <span>Maturity</span>
+                    <span>ครบกำหนด</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #4299e1;"></div>
-                    <span>Premium</span>
+                    <span>เบี้ยประกัน</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #9f7aea;"></div>
-                    <span>Bonus</span>
+                    <span>โบนัส</span>
                 </div>
             </div>
         </div>
@@ -1197,18 +1197,18 @@
     <script>
         // Configuration
         const ZOOM_LEVELS = {
-            1: { name: 'Decade View', granularity: 'year', years: 10, eventSize: 'small' },
-            2: { name: 'Multi-Year', granularity: 'quarter', years: 5, eventSize: 'small' },
-            3: { name: 'Year View', granularity: 'month', years: 1, eventSize: 'medium' },
-            4: { name: 'Quarter View', granularity: 'week', years: 0.25, eventSize: 'large' },
-            5: { name: 'Month View', granularity: 'day', years: 0.083, eventSize: 'large' }
+            1: { name: 'มุมมองทศวรรษ', granularity: 'year', years: 10, eventSize: 'small' },
+            2: { name: 'มุมมองหลายปี', granularity: 'quarter', years: 5, eventSize: 'small' },
+            3: { name: 'มุมมองรายปี', granularity: 'month', years: 1, eventSize: 'medium' },
+            4: { name: 'มุมมองรายไตรมาส', granularity: 'week', years: 0.25, eventSize: 'large' },
+            5: { name: 'มุมมองรายเดือน', granularity: 'day', years: 0.083, eventSize: 'large' }
         };
 
         // Sample Data
         const policies = [
             {
                 id: 'POL001',
-                name: 'Life Insurance A',
+                name: 'ประกันชีวิต A',
                 color: '#4299e1',
                 startDate: new Date('2020-01-01'),
                 endDate: new Date('2119-12-31'),
@@ -1222,7 +1222,7 @@
             },
             {
                 id: 'POL002',
-                name: 'Endowment B',
+                name: 'ประกันสะสมทรัพย์ B',
                 color: '#48bb78',
                 startDate: new Date('2022-03-01'),
                 endDate: new Date('2042-03-01'),
@@ -1237,12 +1237,13 @@
             },
             {
                 id: 'POL003',
-                name: 'Savings Plan C',
+                name: 'แผนออมทรัพย์ C',
                 color: '#ed8936',
                 startDate: new Date('2019-06-01'),
                 endDate: new Date('2044-06-01'),
                 events: [
                     { date: new Date('2025-08-10'), type: 'premium', amount: 18000 },
+                    { date: new Date('2025-10-03'), type: 'premium', amount: 18000 },
                     { date: new Date('2026-06-01'), type: 'dividend', amount: 65000 },
                     { date: new Date('2027-12-15'), type: 'bonus', amount: 120000 },
                     { date: new Date('2028-06-01'), type: 'dividend', amount: 72000 },
@@ -1252,7 +1253,7 @@
             },
             {
                 id: 'POL004',
-                name: 'Investment D',
+                name: 'กองทุนลงทุน D',
                 color: '#9f7aea',
                 startDate: new Date('2023-09-01'),
                 endDate: new Date('2038-09-01'),
@@ -1330,7 +1331,14 @@
         function showZoomToast() {
             const toast = document.getElementById('zoomToast');
             const config = ZOOM_LEVELS[currentZoomLevel];
-            toast.textContent = `🔍 ${config.name} • Showing ${config.granularity}`;
+            const granularityThai = {
+                'year': 'ปี',
+                'quarter': 'ไตรมาส',
+                'month': 'เดือน',
+                'week': 'สัปดาห์',
+                'day': 'วัน'
+            };
+            toast.textContent = `🔍 ${config.name} • แสดง${granularityThai[config.granularity]}`;
             toast.classList.add('show');
             
             setTimeout(() => {
@@ -1383,8 +1391,8 @@
                 case 'month':
                     // Show months
                     let monthDate = new Date(currentStartDate);
-                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    const monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 
+                                       'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
                     while (monthDate <= endDate) {
                         const isMajor = monthDate.getMonth() === 0;
                         markers.push(`
@@ -1737,10 +1745,10 @@
 
         function getEventName(type) {
             const names = {
-                dividend: 'Dividend Payment',
-                maturity: 'Maturity Payment',
-                premium: 'Premium Due',
-                bonus: 'Bonus Payment'
+                dividend: 'การจ่ายเงินปันผล',
+                maturity: 'การจ่ายเงินครบกำหนด',
+                premium: 'เบี้ยประกันถึงกำหนด',
+                bonus: 'การจ่ายโบนัส'
             };
             return names[type] || type;
         }
@@ -1776,16 +1784,16 @@
             let status = '';
             let statusColor = '';
             if (daysUntil < 0) {
-                status = '● Past';
+                status = '● ผ่านไปแล้ว';
                 statusColor = '#a0aec0';
             } else if (daysUntil === 0) {
-                status = '● Today';
+                status = '● วันนี้';
                 statusColor = '#f59e0b';
             } else if (daysUntil <= 30) {
-                status = '● Upcoming Soon';
+                status = '● ใกล้ถึงแล้ว';
                 statusColor = '#f59e0b';
             } else {
-                status = '● Upcoming';
+                status = '● กำลังจะมาถึง';
                 statusColor = '#48bb78';
             }
             
@@ -1803,24 +1811,24 @@
             // Create new rows structure
             const rowsHTML = `
                 <div class="detail-row">
-                    <span class="detail-label">Policy</span>
+                    <span class="detail-label">กรมธรรม์</span>
                     <span class="detail-value">${data.policy}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Type</span>
+                    <span class="detail-label">ประเภท</span>
                     <span class="detail-value">${getEventName(data.type)}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Date</span>
+                    <span class="detail-label">วันที่</span>
                     <span class="detail-value">${data.date}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Status</span>
+                    <span class="detail-label">สถานะ</span>
                     <span class="detail-value" style="color: ${statusColor};">${status}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">${daysUntil >= 0 ? 'Days Until' : 'Days Ago'}</span>
-                    <span class="detail-value">${Math.abs(daysUntil)} days</span>
+                    <span class="detail-label">${daysUntil >= 0 ? 'เหลืออีก' : 'ผ่านมาแล้ว'}</span>
+                    <span class="detail-value">${Math.abs(daysUntil)} วัน</span>
                 </div>
             `;
             
@@ -1845,11 +1853,24 @@
             document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
-            // Adjust zoom level based on years
-            if (years === 1) currentZoomLevel = 3;
-            else if (years === 5) currentZoomLevel = 2;
-            else if (years === 10) currentZoomLevel = 1;
-            else currentZoomLevel = 1;
+            // Set start date based on the range
+            if (years === 1) {
+                // แสดงปีปัจจุบัน - เริ่มต้นที่วันที่ 1 มกราคมของปีนี้
+                currentStartDate = new Date(new Date().getFullYear(), 0, 1);
+                currentZoomLevel = 3;
+            } else if (years === 5) {
+                // แสดง 5 ปีนับจากปีปัจจุบัน
+                currentStartDate = new Date(new Date().getFullYear(), 0, 1);
+                currentZoomLevel = 2;
+            } else if (years === 10) {
+                // แสดง 10 ปีนับจากปีปัจจุบัน
+                currentStartDate = new Date(new Date().getFullYear(), 0, 1);
+                currentZoomLevel = 1;
+            } else {
+                // All - แสดงทั้งหมด
+                currentStartDate = new Date(new Date().getFullYear(), 0, 1);
+                currentZoomLevel = 1;
+            }
             
             document.getElementById('zoomSlider').value = currentZoomLevel;
             updateZoom(currentZoomLevel);
@@ -1945,8 +1966,8 @@
             const month = calendarDate.getMonth();
             
             // Update header
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                              'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                              'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
             document.getElementById('calendarCurrentMonth').textContent = `${monthNames[month]} ${year}`;
             
             // Get first day of month and number of days
